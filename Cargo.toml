@@ -1,0 +1,30 @@
+
+[package]
+name = "sewup-kv-example"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+# See the following examples
+# https://github.com/second-state/SewUp/tree/main/examples/rusty-contract
+
+[dependencies]
+sewup = "*"
+sewup-derive = "*"
+
+[profile.release]
+incremental = false
+panic = "abort"
+lto = true
+opt-level = "z"
+
+[profile.release.package.sewup-kv-example]
+incremental = false
+opt-level = "z"
+
+[features]
+constructor = []
+constructor-test = []
