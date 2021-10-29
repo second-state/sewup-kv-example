@@ -32,6 +32,7 @@ impl std::convert::From<Puzzle> for PuzzleInfo {
 struct Input {
     address: String,
     r#char: Option<char>,
+    word: Option<String>,
 }
 
 #[ewasm_constructor]
@@ -101,6 +102,26 @@ fn challenge(input: Input) -> Result<EwasmAny> {
         Err(anyhow::anyhow!("There is no puzzle in this address"))
     };
 }
+#[ewasm_fn]
+fn guess(input: Input) -> Result<EwasmAny> {
+    let mut storage = sewup::kv::Store::load(None)?;
+    let mut puzzle_bucket = storage.bucket::<Address, Puzzle>("puzzles")?;
+    let address = Address::from_str(&input.address)?;
+    let guess_word = if let Some(w) = input.word {
+        w.to_ascii_uppercase()
+    } else {
+        return Err(anyhow::anyhow!("Please input a guessing word"));
+    };
+    return if let Some(p) = puzzle_bucket.get(address)? {
+        if guess_word == p.word.to_ascii_uppercase() {
+            Ok(p.reward.into())
+        } else {
+            Err(anyhow::anyhow!("The word is not what you think"))
+        }
+    } else {
+        Err(anyhow::anyhow!("There is no puzzle in this address"))
+    };
+}
 
 #[ewasm_main(auto)]
 fn main() -> Result<EwasmAny> {
@@ -114,6 +135,7 @@ fn main() -> Result<EwasmAny> {
         }
         ewasm_fn_sig!(get_puzzle_info) => return ewasm_input_from!(contract move get_puzzle_info),
         ewasm_fn_sig!(challenge) => return ewasm_input_from!(contract move challenge),
+        ewasm_fn_sig!(guess) => return ewasm_input_from!(contract move guess),
         _ => return Err(anyhow::anyhow!("UnknownHandle")),
     };
 
@@ -148,7 +170,11 @@ mod tests {
             size: 5,
         };
         ewasm_auto_assert_eq!(get_puzzle_info(input), info);
+
         input.char = Some('P');
         ewasm_auto_assert_eq!(challenge(input), "-pp--".to_string());
+
+        input.word = Some("apple".into());
+        ewasm_auto_assert_eq!(guess(input), "You are the apple of my eye".to_string());
     }
 }
