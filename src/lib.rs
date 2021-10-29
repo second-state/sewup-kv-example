@@ -1,7 +1,29 @@
+use serde_derive::{Deserialize, Serialize};
+
+use sewup::types::Address;
+use sewup_derive::Value;
 use sewup_derive::{ewasm_constructor, ewasm_fn, ewasm_fn_sig, ewasm_main, ewasm_test};
 
+#[derive(Default, Clone, Serialize, Deserialize, Debug, PartialEq, Value)]
+struct Puzzle {
+    hint: String,
+    word: String,
+    reward: String,
+}
+
 #[ewasm_constructor]
-fn constructor() {}
+fn constructor() {
+    let mut storage =
+        sewup::kv::Store::new().expect("there is no return for constructor currently");
+    let puzzle_bucket = storage
+        .bucket::<Address, Puzzle>("puzzles")
+        .expect("there is no return for constructor currently");
+
+    storage.save(puzzle_bucket);
+    storage
+        .commit()
+        .expect("there is no return for constructor currently");
+}
 
 #[ewasm_fn]
 fn handler() -> Result<(), &'static str> {

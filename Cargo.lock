@@ -618,6 +618,8 @@ dependencies = [
 name = "sewup-kv-example"
 version = "0.1.0"
 dependencies = [
+ "serde",
+ "serde_derive",
  "sewup",
  "sewup-derive",
 ]
