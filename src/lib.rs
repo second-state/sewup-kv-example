@@ -28,9 +28,10 @@ impl std::convert::From<Puzzle> for PuzzleInfo {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Default, Serialize, Deserialize)]
 struct Input {
     address: String,
+    r#char: Option<char>,
 }
 
 #[ewasm_constructor]
@@ -72,6 +73,35 @@ fn get_puzzle_info(input: Input) -> Result<EwasmAny> {
     };
 }
 
+#[ewasm_fn]
+fn challenge(input: Input) -> Result<EwasmAny> {
+    let mut storage = sewup::kv::Store::load(None)?;
+    let mut puzzle_bucket = storage.bucket::<Address, Puzzle>("puzzles")?;
+    let address = Address::from_str(&input.address)?;
+    let challenge_char = if let Some(c) = input.char {
+        c.to_ascii_uppercase()
+    } else {
+        return Err(anyhow::anyhow!("Please input a challenge char"));
+    };
+    return if let Some(p) = puzzle_bucket.get(address)? {
+        let word: String = p
+            .word
+            .clone()
+            .chars()
+            .map(|c| {
+                if c.to_ascii_uppercase() == challenge_char {
+                    return c;
+                } else {
+                    return '-';
+                }
+            })
+            .collect();
+        Ok(word.into())
+    } else {
+        Err(anyhow::anyhow!("There is no puzzle in this address"))
+    };
+}
+
 #[ewasm_main(auto)]
 fn main() -> Result<EwasmAny> {
     use sewup::primitives::Contract;
@@ -83,6 +113,7 @@ fn main() -> Result<EwasmAny> {
             ewasm_input_from!(contract move set_puzzle)
         }
         ewasm_fn_sig!(get_puzzle_info) => return ewasm_input_from!(contract move get_puzzle_info),
+        ewasm_fn_sig!(challenge) => return ewasm_input_from!(contract move challenge),
         _ => return Err(anyhow::anyhow!("UnknownHandle")),
     };
 
@@ -107,8 +138,9 @@ mod tests {
             set_puzzle(puzzle) by "1cCA28600d7491365520B31b466f88647B9839eC"
         );
 
-        let input = Input {
+        let mut input = Input {
             address: "0x1cCA28600d7491365520B31b466f88647B9839eC".to_string(),
+            ..Default::default()
         };
 
         let info = PuzzleInfo {
@@ -116,5 +148,7 @@ mod tests {
             size: 5,
         };
         ewasm_auto_assert_eq!(get_puzzle_info(input), info);
+        input.char = Some('P');
+        ewasm_auto_assert_eq!(challenge(input), "-pp--".to_string());
     }
 }
