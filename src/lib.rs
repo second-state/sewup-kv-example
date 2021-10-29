@@ -26,7 +26,16 @@ fn constructor() {
 }
 
 #[ewasm_fn]
-fn handler() -> Result<(), &'static str> {
+fn set_puzzle(puzzle: Puzzle) -> Result<(), &'static str> {
+    let caller_address = sewup::utils::caller();
+
+    let mut storage = sewup::kv::Store::load(None).map_err(|_| "fail to load storage")?;
+    let mut puzzle_bucket = storage
+        .bucket::<Address, Puzzle>("puzzles")
+        .map_err(|_| "fail to load puzzles")?;
+    puzzle_bucket.set(caller_address, puzzle);
+    storage.save(puzzle_bucket);
+    storage.commit().map_err(|_| "fail to store puzzle")?;
     Ok(())
 }
 
@@ -40,7 +49,9 @@ fn main() -> Result<(), &'static str> {
         .get_function_selector()
         .map_err(|_| "FailGetFnSelector")?
     {
-        ewasm_fn_sig!(handler) => handler()?,
+        ewasm_fn_sig!(set_puzzle) => {
+            ewasm_input_from!(contract move set_puzzle, |_| "Fail to set puzzle")
+        }
         _ => return Err("UnknownHandle"),
     };
 
@@ -54,7 +65,14 @@ mod tests {
     use sewup_derive::{ewasm_assert_eq, ewasm_rusty_assert_ok, ewasm_rusty_err_output};
 
     #[ewasm_test]
-    fn test_handler_ok() {
-        ewasm_rusty_assert_ok!(handler());
+    fn test_set_puzzle() {
+        let puzzle = Puzzle {
+            hint: "A fruit".into(),
+            word: "Apple".into(),
+            reward: "You are the apple of my eye".into(),
+        };
+        ewasm_rusty_assert_ok!(
+            set_puzzle(puzzle) by "1cCA28600d7491365520B31b466f88647B9839eC"
+        );
     }
 }
