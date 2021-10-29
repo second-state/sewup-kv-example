@@ -574,9 +574,9 @@ dependencies = [
 
 [[package]]
 name = "sewup"
-version = "0.1.5"
+version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "027e04efddc031c45eaddb9eaa7c1a72a9bb9fa058bd409f7da55ef5c15c0c8d"
+checksum = "f4759bc38df16a0a14e99dd91e20b7e2a8c1b56ba941239ec5b6f17a5a066d1b"
 dependencies = [
  "anyhow",
  "bincode",
@@ -600,9 +600,9 @@ dependencies = [
 
 [[package]]
 name = "sewup-derive"
-version = "0.1.5"
+version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69c8b4a90f227cbf395fc34166d7adb7227266634ed03bb8c453c54a461da782"
+checksum = "ccc03bce5fc4d97a32c2d70947e588a9493c64dbf6ead21cacac5af310b32b3a"
 dependencies = [
  "hex",
  "paste",
@@ -618,6 +618,7 @@ dependencies = [
 name = "sewup-kv-example"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "serde",
  "serde_derive",
  "sewup",

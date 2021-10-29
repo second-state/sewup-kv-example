@@ -13,10 +13,11 @@ crate-type = ["cdylib"]
 # https://github.com/second-state/SewUp/tree/main/examples/rusty-contract
 
 [dependencies]
-sewup = { version = "0.1.5", features = [ "kv" ] }
-sewup-derive = { version = "0.1.5", features = [ "kv" ] }
+sewup = { version = "0.1.6", features = [ "kv" ] }
+sewup-derive = { version = "0.1.6", features = [ "kv" ] }
 serde = "1.0"
 serde_derive = "1.0"
+anyhow = "1.0.40"
 
 [profile.release]
 incremental = false
