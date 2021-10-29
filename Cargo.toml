@@ -3,6 +3,7 @@
 name = "sewup-kv-example"
 version = "0.1.0"
 edition = "2018"
+description = "A hangman game contract using sewup kv feature"
 
 [lib]
 path = "src/lib.rs"
@@ -12,8 +13,8 @@ crate-type = ["cdylib"]
 # https://github.com/second-state/SewUp/tree/main/examples/rusty-contract
 
 [dependencies]
-sewup = "*"
-sewup-derive = "*"
+sewup = { version = "0.1.5", features = [ "kv" ] }
+sewup-derive = { version = "0.1.5", features = [ "kv" ] }
 
 [profile.release]
 incremental = false
