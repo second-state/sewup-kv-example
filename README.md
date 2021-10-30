@@ -1,5 +1,5 @@
 # sewup-kv-example
-A key value feature example for sewup hackthon
+A key value feature example for sewup hackathon
 
 ## Hangman Game
 Hangman is a classic game for learning English words.
@@ -13,3 +13,7 @@ Here is the rule, and we will implement this latter.
 2. Everyone can get the information of the puzzle (the length of words and the hint).
 3. Everyone guess one char, for example `p`, and he will get a partial string like `-pp--`.
 4. Everyone can guess the word, if correct, he will see the sentence.
+
+## Reference
+- [Sewup project](https://github.com/second-state/SewUp)
+- [Hackathon slide](https://slides.com/yanganto/key-value-storage-with-sewup)
